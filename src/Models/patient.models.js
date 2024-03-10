@@ -1,4 +1,6 @@
 import mongoose , { Schema } from "mongoose";
+import bcrypt from "bcrypt"
+import jwt from "jsonwebtoken"
 
 const patientSchema = new Schema({
 
@@ -35,6 +37,9 @@ const patientSchema = new Schema({
     type : String,
     require : true,
   
+  },
+  refreshTocken : {
+    type : String,
   }
 
 },{timestamps : true})
