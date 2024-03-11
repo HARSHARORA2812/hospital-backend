@@ -55,7 +55,7 @@ patientSchema.methods.isPasswordCorrect = async function (password){
   return await bcrypt.compare(password,this.password)
 }
 
-patientSchemaSchema.methods.generateAccessToken =  function (){
+patientSchema.methods.generateAccessToken =  function (){
    return jwt.sign(
     {
       id : this._id,
