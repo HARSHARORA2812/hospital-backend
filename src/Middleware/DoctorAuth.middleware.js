@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 import { Doctor } from "../Models/doctor.models.js";
 
 
-export const verifyJWT = asyncHandler(async (req,res,next) => {
+export const verifyDoctorJWT = asyncHandler(async (req,res,next) => {
     try {
       const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer "," ");
   
