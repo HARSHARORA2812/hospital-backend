@@ -1,19 +1,18 @@
-import e from "express";
-import { Patient } from "../Models/patient.models.js";
 import { ApiError } from "../Util/ApiError.utils.js";
 import { ApiResponse } from "../Util/ApiResponse.utils.js";
+import { Doctor } from "../Models/doctor.models.js";
 
 const GenerateAccessAndRefreshToken = (async(userId)=>{
   try {
      
-   const patient = await Patient.findById(userId);
+   const doctor = await Doctor.findById(userId);
 
-    const accessToken = patient.generateAccessToken();
-    const refreshToken = patient.generateRefreshToken();
+    const accessToken = doctor.generateAccessToken();
+    const refreshToken = doctor.generateRefreshToken();
 
-    patient.refreshToken = refreshToken;
+    doctor.refreshToken = refreshToken;
 
-    await patient.save({ validateBeforeSave : false })
+    await doctor.save({ validateBeforeSave : false })
 
     return {accessToken , refreshToken}
       
@@ -23,21 +22,22 @@ const GenerateAccessAndRefreshToken = (async(userId)=>{
   }
 })
 
-const RegisterPatient = (async(req,res,next)=>{
+const RegisterDoctor = (async(req,res,next)=>{
 
   try {
-    const {name , adhaarNumber , desease , email , mobileNumber , password} = req.body;
+    const {name , adhaarNumber ,   specialization
+      , email , mobileNumber , password} = req.body;
 
-    if(!name || !adhaarNumber || !desease || !email || !mobileNumber || !password){
+    if(!name || !adhaarNumber || !specialization || !email || !mobileNumber || !password){
       throw new ApiError(400,"Please Provide all the required fields");
     }
 
-    const existPatient = await Patient.findOne(
+    const existDoctor = await Doctor.findOne(
 
       {$or : [{email},{adhaarNumber},{mobileNumber}]}
       
       )
-    if(existPatient){
+    if(existDoctor){
       throw new ApiError(400,"User Already Exist with this Email or Adhaar Number or Mobile Number");
     }
 
@@ -54,13 +54,13 @@ const RegisterPatient = (async(req,res,next)=>{
     // }
 
 
-    const patient = await Patient.create({name , desease , email , adhaarNumber , mobileNumber , password })
+    const doctor = await Doctor.create({name , specialization , email , adhaarNumber , mobileNumber , password })
 
-    const createdPatient = await Patient.findById(patient._id).seclect("-password")
+    const createdDoctor = await Doctor.findById(doctor._id).seclect("-password")
 
-    const {accessToken , refreshToken} = await GenerateAccessAndRefreshToken(patient._id);
+    const {accessToken , refreshToken} = await GenerateAccessAndRefreshToken(doctor._id);
 
-    const response = new ApiResponse(201,{user : createdUser , accessToken , refreshToken},"Patient Registered Successfully");
+    const response = new ApiResponse(201,{user : createdDoctor , accessToken , refreshToken},"Doctor Registered Successfully");
 
     res.status(201).json(response);
   
@@ -70,7 +70,7 @@ const RegisterPatient = (async(req,res,next)=>{
  }
 })
 
-const LoginPatient = (async(req,res,next)=>{
+const LoginDoctor = (async(req,res,next)=>{
   // get password and email from req.body
   // match password
   // generate access and refresh token
@@ -87,21 +87,21 @@ const LoginPatient = (async(req,res,next)=>{
     throw new ApiError(400,"Please Provide a valid Email");
   }
   
-  const patient = await Patient.findOne({email});
+  const doctor = await Doctor.findOne({email});
 
-  if(!patient){
+  if(!doctor){
     throw new ApiError(400,"User Not Found with this Email");
   }
 
-  const isMatch = await patient.matchPassword(password);
+  const isMatch = await doctor.matchPassword(password);
 
   if(!isMatch){
     throw new ApiError(400,"Invalid Password");
   }
 
-  const {accessToken , refreshToken} = await GenerateAccessAndRefreshToken(patient._id);
+  const {accessToken , refreshToken} = await GenerateAccessAndRefreshToken(doctor._id);
 
-  const response = new ApiResponse(200,{patient ,accessToken , refreshToken},"Login Successfully");
+  const response = new ApiResponse(200,{doctor ,accessToken , refreshToken},"Login Successfully");
 
   res.status(200).
   cookie("refreshToken",refreshToken).
@@ -110,17 +110,17 @@ const LoginPatient = (async(req,res,next)=>{
 
 })
 
-const LogoutPatient = (async(req,res,next)=>{
-    const patient = req.patient;
+const LogoutDoctor = (async(req,res,next)=>{
+    const doctor = req.doctor;
 
-    if(!patient){
+    if(!doctor){
       throw new ApiError(400,"Please Login First");
     }
 
-    patient.refreshToken = null;
-    patient.accessToken = null;
+    doctor.refreshToken = null;
+    doctor.accessToken = null;
 
-    await patient.save({ validateBeforeSave : false });
+    await doctor.save({ validateBeforeSave : false });
 
     res.status(200)
     .cookie("refreshToken","")
@@ -148,9 +148,9 @@ const refreshAccessToken = (async(req,res,next)=>{
     throw new ApiError(400,"Invalid Refresh Token");
   }
 
-  const patient = await Patient.findById(decodedToken?.id);
+  const doctor = await Doctor.findById(decodedToken?.id);
  
-  if(!patient){
+  if(!doctor){
     throw new ApiError(400,"Invalid Refresh Token");
   }
 
@@ -174,21 +174,21 @@ const changeCurrentPassword = (async(req,res,next)=>{
         throw new ApiError(400,"Please Provide Current Password and New Password");
       }
   
-    const patient = await findById(req.patient._id);
+    const doctor = await findById(req.doctor._id);
   
-    if(!patient){
+    if(!doctor){
       throw new ApiError(400,"Please Login First");
     }
   
-    const isMatch = await patient.isPasswordCorrect(currentPassword);
+    const isMatch = await doctor.isPasswordCorrect(currentPassword);
   
     if(!isMatch){
       throw new ApiError(400,"Invalid Current Password");
     }
   
-    patient.password = newPassword;
+    doctor.password = newPassword;
   
-    await patient.save({ validateBeforeSave : false });
+    await doctor.save({ validateBeforeSave : false });
 
   } catch (error) {
     throw new ApiError(500,"Something Went Wrong while changing Password");
@@ -200,48 +200,48 @@ const changeCurrentPassword = (async(req,res,next)=>{
 
 })
 
-const getCurrentPatient = (async(req,res,next)=>{
+const getCurrentDoctor = (async(req,res,next)=>{
 
-   const patient = await findById(req.patient._id).seclect("-password");
+   const doctor = await findById(req.doctor._id).seclect("-password");
    
-   if(!patient){
+   if(!doctor){
     throw new ApiError(400,"Please Login First");
 
     }
 
     res.status(200).json(
-      new ApiResponse(200,{patient},"Current User Data"))
+      new ApiResponse(200,{doctor},"Current User Data"))
 
 
 
 })
 
-const updateCurrentPatient = (async(req,res,next)=>{
+const updateCurrentDoctor = (async(req,res,next)=>{
   // get updated fields from req.body
   // update fields
   // send response with updated user data
 
-  const patient = await findById(req.patient._id)
+  const doctor = await findById(req.doctor._id)
 
-  if(!patient){
+  if(!doctor){
     throw new ApiError(400,"Please Login First");
   }
    
    const updatedFields = req.body;
 
-    if(updatedFields.password || updatedFields.avatar){
-      throw new ApiError(400,"you cant change password or avatar from here");
+    if(updatedFields.password ){
+      throw new ApiError(400,"you cant change password from here");
     }
   
     const { name , adhaar , email , desease} = updatedFields;
 
-    Patient.findByIdAndUpdate(
-      patient._id,
+    Doctor.findByIdAndUpdate(
+      doctor._id,
       {$set : {name , adhaar , email , desease}},
       {new : true}).select("-password")
 
     res.status(200).json(
-      new ApiResponse(200,{patient},"User Updated Successfully")
+      new ApiResponse(200,{doctor},"User Updated Successfully")
 
     )
 
@@ -255,12 +255,11 @@ const updateCurrentPatient = (async(req,res,next)=>{
 
 
 export {
-  RegisterPatient,
-  GenerateAccessAndRefreshToken,
-  LoginPatient,
-  LogoutPatient,
+  RegisterDoctor,
+  LoginDoctor,
+  LogoutDoctor,
   refreshAccessToken,
   changeCurrentPassword,
-  getCurrentPatient,
-  updateCurrentPatient,
+  getCurrentDoctor,
+  updateCurrentDoctor
 }
