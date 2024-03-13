@@ -17,12 +17,13 @@ const uploadOnCloudibary = async (localFilePath) => {
       resource_type : "auto"
     })
 
-    fs.unlinkSync(localFilePath);
+    console.log("file is uploaded successfully",response.url);
+    // fs.unlinkSync(localFilePath);
 
     return response;
     
   } catch (error) {
-      fs.unlinkSync(localFilePath);
+      // fs.unlinkSync(localFilePath);
       return null
   }
 }

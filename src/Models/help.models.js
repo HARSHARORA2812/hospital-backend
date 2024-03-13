@@ -15,7 +15,11 @@ const helpSchema = new Schema({
    details : {
     type : String,
     require : true,
-   }
+   },
+   name : {
+    type : String,
+    require : true,
+   },
 
 }, {timestamps : true})
 
