@@ -1,5 +1,5 @@
-import { ApiError } from "../Util/ApiError.utils";
-import { ApiResponse } from "../Util/ApiResponse.utils";
+import { ApiError } from "../Util/ApiError.utils.js";
+import { ApiResponse } from "../Util/ApiResponse.utils.js";
 
 const createHelpRequest = async (req, res, next) => {
   const { name , location , mobileNumber , description } = req.body;
