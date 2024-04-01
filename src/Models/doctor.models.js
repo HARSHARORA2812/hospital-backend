@@ -22,12 +22,13 @@ const doctorSchema = new Schema({
     type : Number,
     require : true,
     unique : true,
+    lowecase : true,
   },
-  // avatar : {
-  //   type : String,
-  //   require : true,
-  //   unique : true,
-  // },
+  avatar : {
+    type : String,
+    require : true,
+    unique : true,
+  },
   email : {
     type : String,
     require :true ,
