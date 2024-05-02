@@ -1,4 +1,3 @@
-import { Patient } from "../Models/patient.models.js";
 import { ApiError } from "../Util/ApiError.utils.js";
 import { ApiResponse } from "../Util/ApiResponse.utils.js";
 import { Doctor } from "../Models/doctor.models.js";

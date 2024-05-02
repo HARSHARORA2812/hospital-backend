@@ -23,6 +23,8 @@ const GenerateAccessAndRefreshToken = (async(userId)=>{
   }
 })
 
+// start patient creation
+
 const RegisterPatient = (async(req,res,next)=>{
 
   try {
