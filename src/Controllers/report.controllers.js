@@ -1,7 +1,7 @@
-import { Patient } from "../Models/patient.models.js";
 import { ApiError } from "../Util/ApiError.utils.js";
 import { ApiResponse } from "../Util/ApiResponse.utils.js";
-import { verifyPatientJWT } from "../Middleware/PatientAuth.middleware.js";
+
+// 
 
 const GetPatientReport = (async(req,res,next)=>{
   try {

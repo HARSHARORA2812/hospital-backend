@@ -22,6 +22,8 @@ const GenerateAccessAndRefreshToken = (async(userId)=>{
   }
 })
 
+// doctor creation start
+
 const RegisterDoctor = (async(req,res,next)=>{
 
   try {
